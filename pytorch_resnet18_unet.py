@@ -4,9 +4,9 @@
 # In[22]:
 
 
-get_ipython().run_line_magic('matplotlib', 'inline')
-get_ipython().run_line_magic('load_ext', 'autoreload')
-get_ipython().run_line_magic('autoreload', '2')
+# get_ipython().run_line_magic('matplotlib', 'inline')
+# get_ipython().run_line_magic('load_ext', 'autoreload')
+# get_ipython().run_line_magic('autoreload', '2')
 
 import os,sys
 import matplotlib.pyplot as plt
@@ -16,23 +16,23 @@ import simulation
 from matplotlib.image import imread
 
 # Generate some random images
-input_images, target_masks = simulation.generate_random_data(192, 192, count=3)
+# input_images, target_masks = simulation.generate_random_data(192, 192, count=3)
 # other_input_images = np.array([imread('./images/output_0_1.png'), imread('./images/output_2_2.png'), imread('./images/output_9_1.png')])
 # other_target_masks = np.array([imread('./images/output_0_1.png'), imread('./images/output_2_2.png'), imread('./images/output_9_1.png')])
 
-for x in [input_images, target_masks]:
-    print(x.shape)
-    print(x.min(), x.max())
+# for x in [input_images, target_masks]:
+#     print(x.shape)
+#     print(x.min(), x.max())
 
 # Change channel-order and make 3 channels for matplot
-input_images_rgb = [x.astype(np.uint8) for x in input_images]
+# input_images_rgb = [x.astype(np.uint8) for x in input_images]
 # print(np.array(input_images_rgb).shape)
 
 # Map each channel (i.e. class) to each color
-target_masks_rgb = [helper.masks_to_colorimg(x) for x in target_masks]
+# target_masks_rgb = [helper.masks_to_colorimg(x) for x in target_masks]
 
 # Left: Input image, Right: Target mask
-helper.plot_side_by_side([input_images, target_masks_rgb])
+# helper.plot_side_by_side([input_images, target_masks_rgb])
 
 
 # In[27]:
@@ -212,7 +212,7 @@ print(inputs.shape, masks.shape)
 for x in [inputs.numpy(), masks.numpy()]:
     print(x.min(), x.max(), x.mean(), x.std())
 
-plt.imshow(reverse_transform(inputs)[0])
+# plt.imshow(reverse_transform(inputs)[0])
 
 
 # In[30]:
