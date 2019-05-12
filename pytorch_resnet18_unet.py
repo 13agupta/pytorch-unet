@@ -9,7 +9,7 @@
 # get_ipython().run_line_magic('autoreload', '2')
 
 import os,sys
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import numpy as np
 # import helper
 # import simulation
@@ -509,13 +509,13 @@ pred = pred.data.cpu().numpy()
 print(pred.shape)
 
 # Change channel-order and make 3 channels for matplot
-input_images_rgb = [reverse_transform(x) for x in inputs.cpu()]
+# input_images_rgb = [reverse_transform(x) for x in inputs.cpu()]
 
 # Map each channel (i.e. class) to each color
-target_masks_rgb = [helper.masks_to_colorimg(x) for x in labels.cpu().numpy()]
-pred_rgb = [helper.masks_to_colorimg(x) for x in pred]
+# target_masks_rgb = [helper.masks_to_colorimg(x) for x in labels.cpu().numpy()]
+# pred_rgb = [helper.masks_to_colorimg(x) for x in pred]
 
-helper.plot_side_by_side([input_images_rgb, target_masks_rgb, pred_rgb])
+# helper.plot_side_by_side([input_images_rgb, target_masks_rgb, pred_rgb])
 print('Jaccard Overlap: ', )
 
 
