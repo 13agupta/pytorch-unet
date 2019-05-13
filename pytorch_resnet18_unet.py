@@ -117,19 +117,19 @@ def makeSeg(image):
     image = image.reshape((image.shape[0], image.shape[1], 1))
     foreground = np.zeros(image.shape)
     first = np.zeros(image.shape)
-    first[image == 2] == 1
-    foreground[image == 2] == 1
+    first[image == 2] = 1
+    foreground[image == 2] = 1
     second = np.zeros(image.shape)
-    second[image == 3] == 1
-    foreground[image == 3] == 1
+    second[image == 3] = 1
+    foreground[image == 3] = 1
     third = np.zeros(image.shape)
-    third[image == 41] == 1
-    foreground[image == 41] == 1
+    third[image == 41] = 1
+    foreground[image == 41] = 1
     fourth = np.zeros(image.shape)
-    fourth[image == 42] == 1
-    foreground[image == 42] == 1
+    fourth[image == 42] = 1
+    foreground[image == 42] = 1
     fifth = np.zeros(image.shape)
-    fifth[foreground == 0] == 1
+    fifth[foreground == 0] = 1
     
     return np.concatenate((first, second, third, fourth, fifth), axis=2)
     
