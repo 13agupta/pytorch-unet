@@ -13,7 +13,7 @@ import os,sys
 import numpy as np
 # import helper
 # import simulation
-from matplotlib.image import imread
+# from matplotlib.image import imread
 
 # Generate some random images
 # input_images, target_masks = simulation.generate_random_data(192, 192, count=3)
@@ -21,8 +21,8 @@ from matplotlib.image import imread
 # other_target_masks = np.array([imread('./images/output_0_1.png'), imread('./images/output_2_2.png'), imread('./images/output_9_1.png')])
 
 # for x in [input_images, target_masks]:
-    # print(x.shape)
-    # print(x.min(), x.max())
+#     print(x.shape)
+#     print(x.min(), x.max())
 
 # Change channel-order and make 3 channels for matplot
 # input_images_rgb = [x.astype(np.uint8) for x in input_images]
@@ -37,6 +37,14 @@ from matplotlib.image import imread
 
 # In[2]:
 
+
+# dirs = './segmented_images/'
+# files = os.listdir(dirs)
+# print(files[0])
+# segmented_images = np.array([np.load(dirs + str(files[i])) for i in range(len(files))])
+# print(segmented_images[0].max())
+# print(segmented_images[0].min())
+# print(segmented_images[0][80 : -80, 80 : -80])
 
 # dirs = '/A/'
 # files = os.listdir(dirs)
@@ -89,12 +97,12 @@ from matplotlib.image import imread
 # dataset_sizes
 
 
-# In[5]:
+# In[3]:
 
 
 from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms, datasets, models
-from matplotlib.image import imread
+# from matplotlib.image import imread
 import numpy as np
 import os
 
@@ -132,18 +140,18 @@ class SimDataset(Dataset):
             dirs = './original_images/'
             files = os.listdir(dirs)
             # print(files[0])
-            self.input_images = np.array([makeInput(imread(dirs + str(files[i]))) for i in range(len(files))])
-            print(self.input_images.shape)
+            self.input_images = np.array([makeInput(np.load(dirs + str(files[i]))) for i in range(len(files))])
+            # print(self.input_images.shape)
             dirs = './segmented_images/'
             files = os.listdir(dirs)
-            self.target_masks = np.array([makeSeg(imread(dirs + str(files[i]))) for i in range(len(files))])
+            self.target_masks = np.array([makeSeg(np.load(dirs + str(files[i]))) for i in range(len(files))])
         else:
             dirs = './validation_original_images/'
             files = os.listdir(dirs)
-            self.input_images = np.array([makeInput(imread(dirs + str(files[i]))) for i in range(len(files))])
+            self.input_images = np.array([makeInput(np.load(dirs + str(files[i]))) for i in range(len(files))])
             dirs = './validation_segmented_images/'
             files = os.listdir(dirs)
-            self.target_masks = np.array([makeSeg(imread(dirs + str(files[i]))) for i in range(len(files))])
+            self.target_masks = np.array([makeSeg(np.load(dirs + str(files[i]))) for i in range(len(files))])
         
         self.transform = transform
     
@@ -190,7 +198,7 @@ dataset_sizes = {
 dataset_sizes
 
 
-# In[6]:
+# In[4]:
 
 
 import torchvision.utils
@@ -215,13 +223,13 @@ for x in [inputs.numpy(), masks.numpy()]:
 # plt.imshow(reverse_transform(inputs)[0])
 
 
-# In[7]:
+# In[5]:
 
 
 inputs.shape
 
 
-# In[8]:
+# In[6]:
 
 
 from torchvision import models
@@ -231,7 +239,7 @@ base_model = models.resnet18(pretrained=False)
 list(base_model.children())
 
 
-# In[9]:
+# In[7]:
 
 
 # check keras-like model summary using torchsummary
@@ -244,7 +252,7 @@ base_model = base_model.to(device)
 summary(base_model, input_size=(3, 224, 224))
 
 
-# In[10]:
+# In[8]:
 
 
 import torch
@@ -331,7 +339,7 @@ class ResNetUNet(nn.Module):
         return out
 
 
-# In[11]:
+# In[9]:
 
 
 # check keras-like model summary using torchsummary
@@ -345,7 +353,7 @@ model = model.to(device)
 summary(model, input_size=(1, 256, 256))
 
 
-# In[12]:
+# In[10]:
 
 
 from collections import defaultdict
@@ -458,7 +466,7 @@ def train_model(model, optimizer, scheduler, num_epochs=25):
     return model
 
 
-# In[13]:
+# In[11]:
 
 
 import torch
@@ -509,7 +517,7 @@ pred = pred.data.cpu().numpy()
 print(pred.shape)
 
 # Change channel-order and make 3 channels for matplot
-# input_images_rgb = [reverse_transform(x) for x in inputs.cpu()]
+input_images_rgb = [reverse_transform(x) for x in inputs.cpu()]
 
 # Map each channel (i.e. class) to each color
 # target_masks_rgb = [helper.masks_to_colorimg(x) for x in labels.cpu().numpy()]
