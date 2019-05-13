@@ -21,8 +21,8 @@ import numpy as np
 # other_target_masks = np.array([imread('./images/output_0_1.png'), imread('./images/output_2_2.png'), imread('./images/output_9_1.png')])
 
 # for x in [input_images, target_masks]:
-#     print(x.shape)
-#     print(x.min(), x.max())
+    # print(x.shape)
+    # print(x.min(), x.max())
 
 # Change channel-order and make 3 channels for matplot
 # input_images_rgb = [x.astype(np.uint8) for x in input_images]
@@ -33,18 +33,49 @@ import numpy as np
 
 # Left: Input image, Right: Target mask
 # helper.plot_side_by_side([input_images, target_masks_rgb])
+# x = target_masks[0, 2, :, :]
+# something = plt.imshow(x)
+# print(x)
+# print(x.max())
+# plt.show()
 
 
-# In[2]:
+# In[15]:
 
+
+# ROIList = [2, 3, 41, 42]
+# def makeSeg(image):
+    
+#     image = image.reshape((image.shape[0], image.shape[1], 1))
+#     foreground = np.zeros(image.shape)
+#     first = np.zeros(image.shape)
+#     first[image == 2] = 1
+#     foreground[image == 2] = 1
+#     second = np.zeros(image.shape)
+ #    second[image == 3] = 1
+ #    foreground[image == 3] = 1
+ #    third = np.zeros(image.shape)
+#     third[image == 41] = 1
+# #     fourth = np.zeros(image.shape)
+#  #    fourth[image == 42] = 1
+# foreground[image == 42] = 1
+ #    fifth = np.zeros(image.shape)
+#     fifth[foreground == 0] = 1
+    
+#     return np.concatenate((first, second, third, fourth, fifth), axis=2)
 
 # dirs = './segmented_images/'
 # files = os.listdir(dirs)
 # print(files[0])
-# segmented_images = np.array([np.load(dirs + str(files[i])) for i in range(len(files))])
+# segmented_images = np.array([makeSeg(np.load(dirs + str(files[i]))) for i in range(len(files))])
 # print(segmented_images[0].max())
 # print(segmented_images[0].min())
 # print(segmented_images[0][80 : -80, 80 : -80])
+# x = segmented_images[0][2]
+# print(x.max())
+# print(x.min())
+# plt.imshow(x)
+# plt.show()
 
 # dirs = '/A/'
 # files = os.listdir(dirs)
@@ -97,7 +128,7 @@ import numpy as np
 # dataset_sizes
 
 
-# In[3]:
+# In[16]:
 
 
 from torch.utils.data import Dataset, DataLoader
@@ -114,7 +145,7 @@ def makeInput(image):
 # ROIList = [2, 3, 41, 42]
 def makeSeg(image):
     
-    image = image.reshape((image.shape[0], image.shape[1], 1))
+    image = image.reshape((1, image.shape[0], image.shape[1]))
     foreground = np.zeros(image.shape)
     first = np.zeros(image.shape)
     first[image == 2] = 1
@@ -131,7 +162,7 @@ def makeSeg(image):
     fifth = np.zeros(image.shape)
     fifth[foreground == 0] = 1
     
-    return np.concatenate((first, second, third, fourth, fifth), axis=2)
+    return np.concatenate((first, second, third, fourth, fifth), axis=0)
     
 
 class SimDataset(Dataset):
@@ -162,9 +193,9 @@ class SimDataset(Dataset):
         image = self.input_images[idx]
         mask = self.target_masks[idx]
         if self.transform:
-            transformation = self.transform
-            image = transformation(image)
-            mask = transformation(mask)
+            # transformation = self.transform
+            image = self.transform(image)
+            # mask = transformation(mask)
         
         return [image, mask]
 
@@ -198,7 +229,7 @@ dataset_sizes = {
 dataset_sizes
 
 
-# In[4]:
+# In[17]:
 
 
 import torchvision.utils
@@ -223,13 +254,13 @@ for x in [inputs.numpy(), masks.numpy()]:
 # plt.imshow(reverse_transform(inputs)[0])
 
 
-# In[5]:
+# In[18]:
 
 
 inputs.shape
 
 
-# In[6]:
+# In[19]:
 
 
 from torchvision import models
@@ -239,7 +270,7 @@ base_model = models.resnet18(pretrained=False)
 list(base_model.children())
 
 
-# In[7]:
+# In[20]:
 
 
 # check keras-like model summary using torchsummary
@@ -252,7 +283,7 @@ base_model = base_model.to(device)
 summary(base_model, input_size=(3, 224, 224))
 
 
-# In[8]:
+# In[21]:
 
 
 import torch
@@ -339,7 +370,7 @@ class ResNetUNet(nn.Module):
         return out
 
 
-# In[9]:
+# In[22]:
 
 
 # check keras-like model summary using torchsummary
@@ -353,7 +384,7 @@ model = model.to(device)
 summary(model, input_size=(1, 256, 256))
 
 
-# In[10]:
+# In[23]:
 
 
 from collections import defaultdict
@@ -466,7 +497,7 @@ def train_model(model, optimizer, scheduler, num_epochs=25):
     return model
 
 
-# In[11]:
+# In[24]:
 
 
 import torch
@@ -517,7 +548,7 @@ pred = pred.data.cpu().numpy()
 print(pred.shape)
 
 # Change channel-order and make 3 channels for matplot
-input_images_rgb = [reverse_transform(x) for x in inputs.cpu()]
+# input_images_rgb = [reverse_transform(x) for x in inputs.cpu()]
 
 # Map each channel (i.e. class) to each color
 # target_masks_rgb = [helper.masks_to_colorimg(x) for x in labels.cpu().numpy()]
@@ -530,5 +561,45 @@ print('Jaccard Overlap: ', )
 # In[ ]:
 
 
+import pandas as pd
 
+def rle_encode(img):
+    '''
+    img: numpy array, 1 - mask, 0 - background
+    Returns run length as string formated
+    '''
+    pixels = img.flatten()
+    pixels = np.concatenate([[0], pixels, [0]])
+    runs = np.where(pixels[1:] != pixels[:-1])[0] + 1
+    runs[1::2] -= runs[::2]
+    return ' '.join(str(x) for x in runs)
+
+ids = []
+data = []
+
+# Assuming the outputs are stored in a list called outList
+for i in range(7, len(outList) + 7):
+    if (i < 15):
+        ids.append(str(i) + '-left-wm') 
+        data.append(rle_encode(outList[i][0]))
+        ids.append(str(i) + '-left-cortex')
+        data.append(rle_encode(outList[i][1]))
+        ids.append(str(i) + '-right-wm')
+        data.append(rle_encode(outList[i][2]))
+        ids.append(str(i) + '-right-cortex')
+        data.append(rle_encode(outList[i][3]))
+    else:
+        ids.append(str(i + 1) + '-left-wm') 
+        data.append(rle_encode(outList[i][0]))
+        ids.append(str(i + 1) + '-left-cortex')
+        data.append(rle_encode(outList[i][1]))
+        ids.append(str(i + 1) + '-right-wm')
+        data.append(rle_encode(outList[i][2]))
+        ids.append(str(i + 1) + '-right-cortex')
+        data.append(rle_encode(outList[i][3]))
+
+### ids: list containing the 36 IDs as described above  ###
+### data: list containing the 36 binary segmentation masks in RLE format ###
+df = pd.DataFrame({"Id": labels, "Predicted": data})
+df.to_csv('submission.csv', index = False)
 
